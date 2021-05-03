@@ -26,20 +26,20 @@ class DBManager:
     def setUsuario(self,ID,IP,Nombre):
         try: 
             self.cur.execute("INSERT INTO Usuario VALUES(?,?,?)",(ID,IP,Nombre))
-            DBM.conn.commit()
+            self.conn.commit()
         except mariadb.Error as e: 
             print(f"Error insertando usuario: {e}")
     def setPedido(self,ID,fecha,hora_inicio,hora_fin):
         try: 
             self.cur.execute("INSERT INTO Pedido VALUES(?,?,?,?)",(ID,fecha,hora_inicio,hora_fin)) 
-            DBM.conn.commit()
+            self.conn.commit()
         except mariadb.Error as e: 
             print(f"Error insertando Pedido: {e}")
     def setSesion(self,ID,ID_Pedido,ID_Libro,ID_Usuario,tiempoUsuario,lugarJugador):
         try: 
             self.cur.execute("INSERT INTO Sesion VALUES(?,?,?)",(ID,ID_Pedido,ID_Libro))
             self.cur.execute("INSERT INTO UsuarioSesion VALUES(?,?,?,?,?)",(ID,ID_Usuario,ID_Pedido,tiempoUsuario,lugarJugador))
-            DBM.conn.commit()
+            self.conn.commit()
         except mariadb.Error as e: 
             print(f"Error insertando Sesion: {e}")
     def resetDB(self):
@@ -48,7 +48,7 @@ class DBManager:
             self.cur.execute("DELETE FROM Sesion") 
             self.cur.execute("DELETE FROM Pedido") 
             self.cur.execute("DELETE FROM Usuario") 
-            DBM.conn.commit()
+            self.conn.commit()
         except mariadb.Error as e: 
             print(f"Error reiniciando BD: {e}")
 
