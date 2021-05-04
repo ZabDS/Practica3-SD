@@ -60,15 +60,15 @@ class DBManager:
         except mariadb.Error as e: 
             print(f"Error reiniciando BD: {e}")
 
-DBM = DBManager('zabdiel','idscom','127.0.0.1')
-
-libro = DBM.getLibroByID(2)
-
-for element in libro:
-    print(element)
-
-DBM.resetDB()
-DBM.setUsuario("192.168.12.12","Zabdiel")
-DBM.setPedido(8,1,"2021-05-2",datetime.time(0,0,0),datetime.time(0,0,2))
+#DBM = DBManager('zabdiel','PSW','127.0.0.1')
+#
+#libro = DBM.getLibroByID(2)
+#
+#for element in libro:
+#    print(element)
+#
+#DBM.resetDB()
+#DBM.setUsuario("192.168.12.12","Zabdiel")
+#DBM.setPedido(8,1,"2021-05-2",datetime.time(0,0,0),datetime.time(0,0,2))
 
 

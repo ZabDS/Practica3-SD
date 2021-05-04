@@ -11,7 +11,7 @@ def initDNS(port):
 @Pyro4.expose
 class DBServer():
     def __init__(self):
-        self.DBM = DBConnector.DBManager("zabdiel","idscom","127.0.0.1")
+        self.DBM = DBConnector.DBManager("zabdiel","PSW","127.0.0.1")
     def getBook(self,idLibro):
         libro = self.DBM.getLibroByID(idLibro)
         return libro
