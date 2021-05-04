@@ -1,4 +1,6 @@
 import mariadb
+import random
+import datetime
 import sys
 
 class DBManager:
@@ -23,16 +25,22 @@ class DBManager:
                 return libro
         except mariadb.Error as e:
             print(f"Error obteniendo libro: {e}")
-    def setUsuario(self,ID,IP,Nombre):
+    def setUsuario(self,IP,Nombre):
         try: 
-            self.cur.execute("INSERT INTO Usuario VALUES(?,?,?)",(ID,IP,Nombre))
+            self.cur.execute("INSERT INTO Usuario (IP,Nombre) VALUES(?,?)",(IP,Nombre))
             self.conn.commit()
         except mariadb.Error as e: 
             print(f"Error insertando usuario: {e}")
-    def setPedido(self,ID,fecha,hora_inicio,hora_fin):
-        try: 
-            self.cur.execute("INSERT INTO Pedido VALUES(?,?,?,?)",(ID,fecha,hora_inicio,hora_fin)) 
-            self.conn.commit()
+    def setPedido(self,ID_Usuario,ID_Libro,fecha,hora_inicio,hora_fin):
+        try:
+            ID_Pedido = random.randrange(1,1000,3)
+            ID_Sesion = random.randrange(1,1000,3)
+            
+            tiempoUsuario=datetime.datetime.combine(datetime.date.today(), hora_fin) - datetime.datetime.combine(datetime.date.today(), hora_inicio)
+            self.cur.execute("INSERT INTO Pedido VALUES(?,?,?,?)",(ID_Pedido,fecha,hora_inicio,hora_fin)) 
+            self.cur.execute("INSERT INTO Sesion VALUES(?,?,?)",(ID_Sesion,ID_Pedido,ID_Libro))
+            self.cur.execute("INSERT INTO UsuarioSesion VALUES(?,?,?,?,?)",(ID_Sesion,ID_Usuario,ID_Pedido,tiempoUsuario,0))
+            self.conn.commit()        
         except mariadb.Error as e: 
             print(f"Error insertando Pedido: {e}")
     def setSesion(self,ID,ID_Pedido,ID_Libro,ID_Usuario,tiempoUsuario,lugarJugador):
@@ -52,16 +60,15 @@ class DBManager:
         except mariadb.Error as e: 
             print(f"Error reiniciando BD: {e}")
 
-#DBM = DBManager('zabdiel','PSW','127.0.0.1')
-#
-#libro = DBM.getLibroByID(2)
-#
-#for element in libro:
-#    print(element)
-#
-#DBM.resetDB()
+DBM = DBManager('zabdiel','idscom','127.0.0.1')
 
-#DBM.setUsuario(0,"192.168.12.12","Zabdiel")
-#DBM.setPedido(0,"2021-05-2","00:00:00","00:00:00")
-#DBM.setSesion(0,0,1,0,"00:00:00",1)
+libro = DBM.getLibroByID(2)
+
+for element in libro:
+    print(element)
+
+DBM.resetDB()
+DBM.setUsuario("192.168.12.12","Zabdiel")
+DBM.setPedido(8,1,"2021-05-2",datetime.time(0,0,0),datetime.time(0,0,2))
+
 

@@ -1,7 +1,13 @@
 import Pyro4
 import time
+import socket
 
-DBServer = Pyro4.Proxy("PYRONAME:principal.coordinator")    # use name server object lookup uri shortcut
+uriPrincipalCoordinator = "PYRONAME:principal@127.0.0.1:9091"
+#DBServer = Pyro4.Proxy("PYRONAME:principal")    # use name server object lookup uri shortcut
+DBServer = Pyro4.Proxy(uriPrincipalCoordinator)    # use name server object lookup uri shortcut
+
+Name = socket.gethostname()
+IP= socket.gethostbyname(Name)
 
 while True:
     try:
