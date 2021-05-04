@@ -11,11 +11,7 @@ def initDNS():
 @Pyro4.expose
 class DBServer():
     def __init__(self):
-        self.DBM = DBConnector.DBManager("zabdiel","idscom","127.0.0.1")
-
-    def get_fortune(self, name):
-        return "Hello, {0}. Here is your fortune message:\n" \
-               "Tomorrow's lucky number is 12345678.".format(name)
+        self.DBM = DBConnector.DBManager("zabdiel","psw","127.0.0.1")    
 
     def getLibro(self,idLibro):
         libro = self.DBM.getLibroByID(idLibro)
