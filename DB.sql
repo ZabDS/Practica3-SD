@@ -16,8 +16,8 @@ CREATE TABLE Libro(
 CREATE TABLE Pedido(
 	ID INT,
 	fecha DATE,
-	hora_inicio TIME,
-	hora_fin TIME,
+	hora_inicio TIME(2),
+	hora_fin TIME(2),
 	
 	PRIMARY KEY(ID)
 );
@@ -34,7 +34,7 @@ CREATE TABLE UsuarioSesion(
 	ID INT,
 	ID_Usuario INT,
 	ID_Pedido INT,
-	Tiempo_Usuario TIME,
+	Tiempo_Usuario TIME(2),
 	Lugar_Jugador INT,
 	
 	PRIMARY KEY(ID),

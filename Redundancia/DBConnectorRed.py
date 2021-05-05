@@ -27,9 +27,12 @@ class DBManager:
             print(f"Error obteniendo libro: {e}")
             return -1
 
-    def setUsuario(self,IP,Nombre):
-        ID = random.randrange(1,10000,3)
-        try: 
+    def setUsuario(self,IP,Nombre,ID_Usr=-1):
+        if(ID_Usr < 0):
+            ID = random.randrange(1,10000,3)
+        else:
+            ID=ID_Usr
+        try:
             self.cur.execute("INSERT INTO Usuario VALUES(?,?,?)",(ID,IP,Nombre))
             self.conn.commit()
             return ID
@@ -50,7 +53,24 @@ class DBManager:
             self.cur.execute("INSERT INTO Sesion VALUES(?,?,?)",(ID_Sesion,ID_Pedido,ID_Libro))
             self.cur.execute("INSERT INTO UsuarioSesion VALUES(?,?,?,?,?)",(ID_Sesion,ID_Usuario,ID_Pedido,tiempoUsuario,0))
             self.conn.commit()     
-            return (ID_Pedido,ID_Sesion)   
+            return ID_Pedido   
+        except mariadb.Error as e: 
+            print(f"Error insertando Pedido: {e}")
+            return -1
+    def setPedidoBU(self,ID_Pedido,ID_Sesion,ID_Usuario,ID_Libro,fecha,hora_inicio,hora_fin):
+        try:
+            #ID_Pedido = random.randrange(1,10000,3)
+            #ID_Sesion = random.randrange(1,10000,3)
+
+            HI= datetime.datetime.strptime(hora_inicio,"%H:%M:%S.%f").time()
+            HF= datetime.datetime.strptime(hora_inicio,"%H:%M:%S.%f").time()
+            tiempoUsuario=datetime.datetime.combine(datetime.date.today(), HF) - datetime.datetime.combine(datetime.date.today(), HI)
+
+            self.cur.execute("INSERT INTO Pedido VALUES(?,?,?,?)",(ID_Pedido,fecha,hora_inicio,hora_fin)) 
+            self.cur.execute("INSERT INTO Sesion VALUES(?,?,?)",(ID_Sesion,ID_Pedido,ID_Libro))
+            self.cur.execute("INSERT INTO UsuarioSesion VALUES(?,?,?,?,?)",(ID_Sesion,ID_Usuario,ID_Pedido,tiempoUsuario,0))
+            self.conn.commit()     
+            return ID_Pedido   
         except mariadb.Error as e: 
             print(f"Error insertando Pedido: {e}")
             return -1
