@@ -19,7 +19,7 @@ def initDNS(port):
 class DBServer():
     def __init__(self):
         #Conector de BD
-        self.DBM = DBConnector.DBManager("zabdiel","psw","127.0.0.1","LibraryDBR")
+        self.DBM = DBConnector.DBManager("zabdiel","idscom","127.0.0.1","LibraryDBR")
 
     #Método para obtener un libro
     def getBook(self,ID_Usuario,horaI):
@@ -54,6 +54,9 @@ class DBServer():
         bookQueue = list(range(9))
         random.shuffle(bookQueue)
         self.DBM.resetDB()
+    #Método de prueba de conexión; útil para los usuarios
+    def connTest(self):
+        return 1
     #Métodos para el control de la cola de libros. Utilies para su manejo en el coordinador principal
     def getBQueue(self):
         return bookQueue

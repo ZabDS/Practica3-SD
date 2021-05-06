@@ -53,7 +53,7 @@ class DBManager:
             self.cur.execute("INSERT INTO Sesion VALUES(?,?,?)",(ID_Sesion,ID_Pedido,ID_Libro))
             self.cur.execute("INSERT INTO UsuarioSesion VALUES(?,?,?,?,?)",(ID_Sesion,ID_Usuario,ID_Pedido,tiempoUsuario,0))
             self.conn.commit()     
-            return ID_Pedido   
+            return (ID_Pedido,ID_Sesion)   
         except mariadb.Error as e: 
             print(f"Error insertando Pedido: {e}")
             return -1
@@ -85,6 +85,7 @@ class DBManager:
         except mariadb.Error as e: 
             print(f"Error reiniciando BD: {e}")
             return -1
+    
             
 #DBM = DBManager('zabdiel','PSW','127.0.0.1')
 #
