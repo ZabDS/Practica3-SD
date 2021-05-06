@@ -7,6 +7,7 @@ import random
 import datetime
 
 #La cola es controlada por el servidor de redundancia
+global bookQueue
 bookQueue = list(range(9))
 random.shuffle(bookQueue)
 
@@ -23,6 +24,7 @@ class DBServer():
 
     #Método para obtener un libro
     def getBook(self,ID_Usuario,horaI):
+        global bookQueue
         numLibros = len(bookQueue)
         if numLibros > 0:
             idLibro = bookQueue.pop()+1
@@ -51,8 +53,8 @@ class DBServer():
             return ID_usr
     #Método para reiniciar el sistema y limpiar la base de datos
     def resetSys(self):
-        bookQueue = list(range(9))
-        random.shuffle(bookQueue)
+        global bookQueue
+        bookQueue = self.restartBQueue()
         self.DBM.resetDB()
     #Método de prueba de conexión; útil para los usuarios
     def connTest(self):
@@ -63,8 +65,9 @@ class DBServer():
     def popBQueue(self):
         return bookQueue.pop()
     def restartBQueue(self):
-        bookQueue = list(range(9))
-        random.shuffle(bookQueue)
+        NewbookQueue = list(range(9))
+        random.shuffle(NewbookQueue)
+        bookQueue=NewbookQueue
         return bookQueue
 
 #MAIN

@@ -5,10 +5,40 @@ import threading
 import DBConnector
 import random
 import datetime
+from  tkinter import Tk,Canvas,PhotoImage,Button
+from PIL import ImageTk, Image
 
 def initDNS(port):
     #Thread for start the DNS
     naming.startNSloop(port=port)
+
+class Interfaz(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+    def run(self):    
+        self.root = Tk()
+        self.root.geometry("1080x480")
+        self.root.title("Coordinador")
+        self.canvas = Canvas(self.root,width = "395",height = "550", background="black")
+        self.canvas.grid(column=0, row=0)
+        self.ImgCanvas = PhotoImage(file="")
+        self.button = Button(self.root, text="Reiniciar")
+        self.button.grid(row=0,column=1,pady=25,padx=100)
+        self.button.config(command = self.buttonActionRestart)
+        self.root.mainloop()
+    
+    def setPortada(self,ruteImg):
+        print(ruteImg)
+        self.ImgCanvas = ImageTk.PhotoImage(Image.open(ruteImg))
+        self.canvas.create_image(50, 10, image=self.ImgCanvas, anchor="nw")
+
+    def buttonActionRestart(self):
+        uriPrincipalCoordinator = "PYRONAME:principal@127.0.0.1:9091"
+        DBServerMS = Pyro4.Proxy(uriPrincipalCoordinator) 
+        DBServerMS.resetSys()
+
+
+window = Interfaz()
 
 @Pyro4.expose
 class DBServer():
@@ -23,6 +53,9 @@ class DBServer():
             idLibro = self.DBServerR.popBQueue()+1
             libro = self.DBM.getLibroByID(idLibro)
             
+            ruteImg = libro[5]
+            print(ruteImg)
+            window.setPortada(ruteImg)
             fecha = datetime.datetime.today()
             now = datetime.datetime.now()
             horaF=datetime.time(now.hour,now.minute,now.second,now.microsecond)
@@ -41,7 +74,8 @@ class DBServer():
         self.DBServerR.restartBQueue()
         self.DBM.resetDB()
         self.DBServerR.resetSys()
-    
+        print("Sistema reiniciado")
+
 
 port = 9091
 daemon = Pyro4.Daemon()                # make a Pyro daemon
@@ -54,4 +88,5 @@ uri = daemon.register(DBServer)   # register the greeting maker as a Pyro object
 ns.register("principal", uri)   # register the object with a name in the name server
 
 print("Ready.")
+window.start()
 daemon.requestLoop()                   # start the event loop of the server to wait for calls
