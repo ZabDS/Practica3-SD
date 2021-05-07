@@ -6,8 +6,8 @@ from  tkinter import Tk,Button,Label,messagebox
 import threading
 
 
-uriPrincipalCoordinator = "PYRONAME:principal@127.0.0.1:9091"
-uriRespaldoCoordinator = "PYRONAME:Redundancia@127.0.0.1:9092"
+uriPrincipalCoordinator = "PYRO:obj_0b163fcd69ee45b0b23def4c1fe0b312@2.tcp.ngrok.io:17123"
+uriRespaldoCoordinator = "PYRO:obj_fe70bac461ff493dadcbc7d935adde75@6.tcp.ngrok.io:14586"
 DBServer = Pyro4.Proxy(uriPrincipalCoordinator) 
 DBServerR = Pyro4.Proxy(uriRespaldoCoordinator)
 
