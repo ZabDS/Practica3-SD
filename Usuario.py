@@ -6,22 +6,60 @@ from  tkinter import Tk,Button,Label,messagebox
 import threading
 
 
-uriPrincipalCoordinator = "PYRO:obj_0b163fcd69ee45b0b23def4c1fe0b312@2.tcp.ngrok.io:17123"
-uriRespaldoCoordinator = "PYRO:obj_fe70bac461ff493dadcbc7d935adde75@6.tcp.ngrok.io:14586"
+uriPrincipalCoordinator = "PYRONAME:principal@127.0.0.1:9091"
+uriRespaldoCoordinator = "PYRONAME:Redundancia@127.0.0.1:9092"
 DBServer = Pyro4.Proxy(uriPrincipalCoordinator) 
 DBServerR = Pyro4.Proxy(uriRespaldoCoordinator)
+
+now=datetime.datetime.now()
+global timeNow
+timeNow = [now.second,now.minute,now.hour]
 
 root=Tk()
 root.geometry("720x480")
 root.title("Usuario")
 
+def TimeAtoS(timeArray):
+    return str(timeArray[2])+":"+str(timeArray[1])+":"+str(timeArray[0])
+
 class Usuario():
-    def __init__(self):
+    def __init__(self,interfaz):
+        self.Interfaz = interfaz
         self.Name = socket.gethostname()
         self.Server = DBServer
         self.IP= socket.gethostbyname(self.Name)
         self.ID = DBServer.anounceMe(self.IP,self.Name)
-    
+        self.threadSync = threading.Thread(target=self.callClk, name='Clk')
+        self.threadSync.start()
+        
+    def callClk(self):
+        global timeNow
+        while True:
+            try:
+                futurecall = Pyro4.Future(self.Server.syncDetonator)
+                #futurecall.iferror()
+                result = futurecall()
+                if result.wait(3) and result.value != None:                    
+                    masterClkStr = result.value 
+                    clientClkStr = TimeAtoS(self.Interfaz.timeForLook)
+                    #print(clientClkStr)
+                    clientClk = datetime.datetime.strptime(clientClkStr,"%H:%M:%S").time()
+                    masterClk = datetime.datetime.strptime(masterClkStr,"%H:%M:%S").time()
+                    Di = datetime.datetime.combine(datetime.date.today(), masterClk) - datetime.datetime.combine(datetime.date.today(), clientClk)
+                    
+                    Dif = self.Server.syncCordinator(self.ID,Di.total_seconds())
+                    clientClkStr = TimeAtoS(self.Interfaz.timeForLook)
+                    print(Dif)
+                    timeNow = datetime.datetime.strptime(clientClkStr,"%H:%M:%S") - datetime.timedelta(seconds=Dif)
+                    self.Interfaz.setTime([timeNow.second,timeNow.minute,timeNow.hour])
+
+            except Pyro4.errors.ConnectionClosedError:
+                print("Error al conectarse con el coordinador principal")
+                #print(e)
+                self.changeServer()
+                break
+
+                
     def changeServer(self):
         print("Intentando conectarse con el coordinador de respaldo...")
         self.Server = DBServerR
@@ -39,6 +77,7 @@ class Usuario():
             print(e)
             self.changeServer()
             return (-1,"")
+
     def reset(self):
         self.Server.resetSys()
 
@@ -50,7 +89,7 @@ class Interfaz(threading.Thread):
         self.labelBook = Label(root,font=("times",25,"bold"))
         self.buttonReset = Button(root, text="Reiniciar")
         self.buttonBook = Button(root, text="Pedir Libro")
-        self.Usuario = Usuario()
+        self.Usuario = Usuario(self)
 
     def run(self):
         self.label.grid(row=0,column=0,pady=25,padx=100)
@@ -80,7 +119,7 @@ class Interfaz(threading.Thread):
         (cod,Libro) = self.Usuario.getBook()
         print(Libro)
         if cod < 0:
-            self.labelBook.config(text = "Erro, intente de nuevo")
+            self.labelBook.config(text = "Error, intente de nuevo")
         elif type(Libro) != int:
             self.labelBook.config(text = Libro[1][1])
         else:
@@ -90,9 +129,11 @@ class Interfaz(threading.Thread):
 
     def buttonActionRestart(self):
         self.Usuario.reset()
+    
+    def setTime(self,newTime):
+        self.timeForLook = newTime
 
-now=datetime.datetime.now()
-NewUsuario = Interfaz([now.second,now.minute,now.hour])
+NewUsuario = Interfaz([0,0,12])
 NewUsuario.start()
 root.mainloop()
 
