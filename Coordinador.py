@@ -75,6 +75,7 @@ class DBServer():
         self.DBM = DBConnector.DBManager("zabdiel","idscom","127.0.0.1","LibraryDB")
         self.uriRedundacia = "PYRONAME:Redundancia@127.0.0.1:9092"
         self.DBServerR = Pyro4.Proxy(self.uriRedundacia)
+        self.DBServerR.connectToMaster()
         self.cliQueue = []
         self.DifsCli = {}
         self.time0 = ""
@@ -108,8 +109,8 @@ class DBServer():
         flag = 0
         while len(self.DifsCli.keys()) < len(self.cliQueue):
             flag = flag + 1
-            if flag > 2: #NUmero de clientes máximo para no quedarse en ciclo inf
-                break
+            #if flag > 2: #NUmero de clientes máximo para no quedarse en ciclo inf
+            #    break
         
         #Realizamos el promedio
         sum = 0.0
@@ -119,7 +120,7 @@ class DBServer():
             i = i + 1
         
         average = sum / (i+1)
-        print("La suma es ",sum," el numero division es ",i+1," tf ", average)
+        print("La suma es ",sum," el numero division es ",i+2," tf ", average)
         #print(average)
         self.DifsCli.clear()
         return (average)

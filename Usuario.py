@@ -30,6 +30,7 @@ class Usuario():
         self.IP= socket.gethostbyname(self.Name)
         self.ID = DBServer.anounceMe(self.IP,self.Name)
         self.threadSync = threading.Thread(target=self.callClk, name='Clk')
+        self.threadSyncR = threading.Thread(target=self.callClk, name='ClkR')
         self.threadSync.start()
         
     def callClk(self):
@@ -43,8 +44,11 @@ class Usuario():
                     masterClkStr = result.value 
                     clientClkStr = TimeAtoS(self.Interfaz.timeForLook)
                     #print(clientClkStr)
-                    clientClk = datetime.datetime.strptime(clientClkStr,"%H:%M:%S").time()
-                    masterClk = datetime.datetime.strptime(masterClkStr,"%H:%M:%S").time()
+                    try:
+                        clientClk = datetime.datetime.strptime(clientClkStr,"%H:%M:%S").time()
+                        masterClk = datetime.datetime.strptime(masterClkStr,"%H:%M:%S").time()
+                    finally:
+                        print("error extraño")
                     Di = datetime.datetime.combine(datetime.date.today(), masterClk) - datetime.datetime.combine(datetime.date.today(), clientClk)
                     
                     Dif = self.Server.syncCordinator(self.ID,Di.total_seconds())
@@ -58,6 +62,7 @@ class Usuario():
                 #print(e)
                 self.changeServer()
                 break
+        self.threadSyncR.start()
 
                 
     def changeServer(self):
